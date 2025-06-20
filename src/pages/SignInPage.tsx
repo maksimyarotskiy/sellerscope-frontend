@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { signIn } from '../api/auth';
 import { saveTokens } from '../utils/token';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function SignInPage() {
     const [email, setEmail] = useState('');
@@ -30,8 +31,14 @@ export default function SignInPage() {
             const tokens = await signIn({ email, password });
             saveTokens(tokens.accessToken, tokens.refreshToken);
             navigate('/');
-        } catch (err) {
-            setError('Ошибка входа');
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                setError(`Ошибка входа: ${err.message}${err.response?.data ? ' - ' + JSON.stringify(err.response.data) : ''}`);
+                console.error('Sign-in error:', err.response?.data || err);
+            } else {
+                setError('Неизвестная ошибка');
+                console.error('Sign-in error:', err);
+            }
         } finally {
             setLoading(false);
         }
@@ -48,7 +55,6 @@ export default function SignInPage() {
                 onMouseMove={handleMouseMove}
                 className="group relative max-w-md w-full p-8 rounded-2xl shadow-lg backdrop-blur-sm transition-all duration-300 bg-gray-900/70 overflow-hidden"
             >
-                {/* Подсветка от курсора */}
                 <div
                     className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{
@@ -98,11 +104,21 @@ export default function SignInPage() {
                         ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
                         `}
                     >
-                      <span className="relative z-10">
-                        {loading ? 'Загрузка...' : 'Войти'}
-                      </span>
+                        <span className="relative z-10">
+                            {loading ? 'Загрузка...' : 'Войти'}
+                        </span>
                     </button>
 
+                    <button
+                        type="button"
+                        onClick={() => navigate('/sign-up')}
+                        className="relative px-8 py-3 rounded-md font-semibold text-indigo-200
+                        bg-indigo-700/60 hover:bg-indigo-700/80 active:bg-indigo-700/90
+                        transition duration-300 ease-in-out
+                        focus:outline-none focus:ring-4 focus:ring-indigo-400/70 focus:ring-offset-1"
+                    >
+                        Регистрация
+                    </button>
                 </form>
 
                 {error && (
