@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type {SignInRequest, SignUpRequest, JwtAuthenticationResponse} from '../types/auth';
 
-const API_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080') + '/auth';
+const API_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080');
 
 export const signUp = async (data: SignUpRequest): Promise<JwtAuthenticationResponse> => {
     const response = await axios.post(`${API_URL}/sign-up`, data);
